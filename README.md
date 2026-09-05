@@ -37,7 +37,7 @@ Esta ferramenta não promete «+300 % de velocidade» nem limpa o registo às ce
 ### Linux e servidores
 
 ```bash
-git clone https://github.com/<utilizador>/reloadtech-optimizer.git
+git clone https://github.com/Martim-pinho/reloadtech-optimizer.git
 cd reloadtech-optimizer
 ./install.sh              # só a linha de comandos (servidores)
 ./install.sh --gui        # com interface gráfica (desktops)
