@@ -2,10 +2,8 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QFrame,
-    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QSizePolicy,
@@ -16,14 +14,11 @@ from PySide6.QtWidgets import (
 from . import theme
 
 
-def aplicar_sombra(alvo: QWidget, desfoque: int = 26, deslocamento: int = 6) -> None:
-    """Sombra difusa: separa a superfície do fundo sem a anunciar."""
-    sombra = QGraphicsDropShadowEffect(alvo)
-    sombra.setBlurRadius(desfoque)
-    sombra.setXOffset(0)
-    sombra.setYOffset(deslocamento)
-    sombra.setColor(QColor(*theme.SOMBRA_COR))
-    alvo.setGraphicsEffect(sombra)
+# Nota: não há QGraphicsDropShadowEffect nos painéis, e é de propósito. A
+# troca de página aplica um efeito de opacidade à página inteira; um segundo
+# efeito nos painéis lá dentro fica aninhado, e o Qt não consegue pintar o
+# mesmo dispositivo com dois pintores ao mesmo tempo — a janela deixa de
+# desenhar. No registo escuro a elevação já vem da cor da superfície.
 
 
 class Painel(QFrame):
@@ -32,7 +27,6 @@ class Painel(QFrame):
     def __init__(self, titulo: str = "", parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setObjectName("painel")
-        aplicar_sombra(self)
         self.corpo = QVBoxLayout(self)
         self.corpo.setContentsMargins(theme.LG, theme.MD + 2, theme.LG, theme.LG)
         self.corpo.setSpacing(theme.SM + 2)

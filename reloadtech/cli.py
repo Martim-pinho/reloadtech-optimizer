@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from . import storage
-from .core import cleaner, diagnostics, report, startup, tweaks
+from .core import cleaner, diagnostics, memoria, programas, report, startup, tweaks
 from .platform_info import APP_NAME, APP_VERSION, human_bytes, is_admin, os_label
 
 _CORES = sys.stdout.isatty()
@@ -316,7 +316,96 @@ def cmd_registo(args) -> int:
     return 0
 
 
+
+# --- Memória -----------------------------------------------------------------
+
+def cmd_memoria(args) -> int:
+    resumo = memoria.resumo()
+    cor = _cor_percentagem(resumo["percentagem"])
+
+    print(f"\n{negrito('Memória')} — {resumo['usada_legivel']} de "
+          f"{resumo['total_legivel']} em uso ({cor})\n")
+    for parte in resumo["reparticao"]:
+        print(f"  {parte['nome']:<24} {parte['legivel']:>10}   {cinza(parte['explicacao'])}")
+    if resumo["swap_total"]:
+        print(f"\n  Swap em uso: {resumo['swap_legivel']} ({resumo['swap_percentagem']:.0f}%)")
+        if resumo["swap_percentagem"] > 50 and resumo["percentagem"] > 85:
+            print(f"  {amarelo('Swap muito usada com a RAM cheia: falta memória a sério.')}")
+
+    cabecalho("O que está a ocupar a memória")
+    for consumidor in memoria.consumidores(args.limite):
+        marca = cinza(" [sistema]") if consumidor.protegido else ""
+        print(f"  {consumidor.nome[:34]:<34} {consumidor.memoria_legivel:>10} "
+              f"{consumidor.percentagem:>5}%  {consumidor.utilizador}{marca}")
+
+    acoes = memoria.acoes_disponiveis()
+    if acoes:
+        cabecalho("Operações disponíveis")
+        for acao in acoes:
+            estado = "" if acao.disponivel else amarelo("  (não é seguro agora)")
+            print(f"  {negrito(acao.nome)}  {cinza(acao.key)}{estado}")
+            print(f"    {acao.descricao}")
+            print(f"    {amarelo('Custo: ' + acao.custo)}")
+
+    if args.executar:
+        alvo = next((a for a in acoes if a.key == args.executar), None)
+        if alvo is None:
+            print(vermelho(f"\nOperação '{args.executar}' não existe neste sistema."))
+            return 1
+        ok, mensagem = memoria.executar_acao(alvo)
+        print(f"\n  {verde('✓ ' + mensagem) if ok else vermelho('✗ ' + mensagem)}\n")
+        return 0 if ok else 1
+
+    print(cinza("\n  Executar uma operação: reloadtech memoria --executar <chave>\n"))
+    return 0
+
+
+# --- Programas instalados ----------------------------------------------------
+
+def cmd_programas(args) -> int:
+    lista = programas.listar()
+    if args.esconder_sistema:
+        lista = [p for p in lista if not p.do_sistema]
+    if args.procurar:
+        lista = [p for p in lista if args.procurar.lower() in p.nome.lower()]
+
+    print(f"\n{negrito('Programas instalados')} — {len(lista)} encontrados, "
+          f"{human_bytes(programas.espaco_total(lista))} ocupados\n")
+    for programa in lista[: args.limite]:
+        marca = cinza(" [sistema]") if programa.do_sistema else ""
+        uso = f"  usado {programa.ultimo_uso}" if programa.ultimo_uso else ""
+        print(f"  {programa.nome[:36]:<36} {programa.tamanho_legivel:>10}  "
+              f"{(programa.versao or '')[:14]:<14}{cinza(uso)}{marca}")
+
+    if args.remover:
+        alvo = next((p for p in lista if p.nome == args.remover
+                     or p.identificador == args.remover), None)
+        if alvo is None:
+            print(vermelho(f"\nNão encontrei nenhum programa chamado '{args.remover}'."))
+            return 1
+        pode, motivo = programas.pode_remover(alvo)
+        if not pode:
+            print(vermelho(f"\n{motivo}"))
+            return 1
+        if not args.sim:
+            try:
+                resposta = input(f"\n  Desinstalar «{alvo.nome}» "
+                                 f"({alvo.tamanho_legivel})? [s/N] ").strip().lower()
+            except EOFError:
+                resposta = "n"
+            if resposta not in ("s", "sim", "y"):
+                print("  Cancelado.\n")
+                return 0
+        ok, erro = programas.remover(alvo)
+        print(f"\n  {verde('✓ ' + alvo.nome + ' desinstalado') if ok else vermelho('✗ ' + erro)}\n")
+        return 0 if ok else 1
+
+    print()
+    return 0
+
+
 # --- Ponto de entrada --------------------------------------------------------
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -360,6 +449,20 @@ def build_parser() -> argparse.ArgumentParser:
     man.add_argument("--tecnico", help="responsável indicado no relatório")
     man.add_argument("--destino", help="caminho do relatório HTML a escrever")
     man.set_defaults(func=cmd_manutencao)
+
+    mem = sub.add_parser("memoria", help="ver o que ocupa a RAM e as operações possíveis")
+    mem.add_argument("--limite", type=int, default=15, help="quantos processos listar")
+    mem.add_argument("--executar", metavar="CHAVE", help="executar uma operação de memória")
+    mem.set_defaults(func=cmd_memoria)
+
+    prog = sub.add_parser("programas", help="listar e desinstalar programas instalados")
+    prog.add_argument("--limite", type=int, default=40)
+    prog.add_argument("--procurar", metavar="TEXTO")
+    prog.add_argument("--esconder-sistema", action="store_true",
+                      dest="esconder_sistema", help="omitir pacotes do sistema")
+    prog.add_argument("--remover", metavar="NOME")
+    prog.add_argument("--sim", action="store_true", help="não pedir confirmação")
+    prog.set_defaults(func=cmd_programas)
 
     reg = sub.add_parser("registo", help="ver o histórico de operações da ferramenta")
     reg.add_argument("--linhas", type=int, default=60)

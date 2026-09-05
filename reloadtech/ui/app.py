@@ -6,7 +6,6 @@ import socket
 import sys
 
 from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QSize, Qt
-from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -34,28 +33,20 @@ from . import icons, theme
 from .pages.arranque import PaginaArranque
 from .pages.diagnostico import PaginaDiagnostico
 from .pages.limpeza import PaginaLimpeza
+from .pages.memoria import PaginaMemoria
 from .pages.otimizacoes import PaginaOtimizacoes
+from .pages.programas import PaginaProgramas
 from .pages.relatorio import PaginaRelatorio
 
 SECCOES = [
     ("Diagnóstico", "diagnostico"),
+    ("Memória", "memoria"),
     ("Limpeza", "limpeza"),
+    ("Programas", "programas"),
     ("Arranque", "arranque"),
     ("Otimizações", "otimizacoes"),
     ("Relatório", "relatorio"),
 ]
-
-
-def carregar_fontes() -> None:
-    """Regista as fontes incluídas no pacote.
-
-    Sem isto o Qt cai na primeira família instalada que encontre — no macOS,
-    Helvetica Neue — e a aplicação ganha um ar de software de há vinte anos.
-    """
-    if not theme.PASTA_FONTES.is_dir():
-        return
-    for ficheiro in sorted(theme.PASTA_FONTES.glob("*.ttf")):
-        QFontDatabase.addApplicationFont(str(ficheiro))
 
 
 class JanelaPrincipal(QMainWindow):
@@ -80,14 +71,19 @@ class JanelaPrincipal(QMainWindow):
         self.setCentralWidget(central)
 
         self.pagina_diagnostico = PaginaDiagnostico()
+        self.pagina_memoria = PaginaMemoria()
         self.pagina_limpeza = PaginaLimpeza()
+        self.pagina_programas = PaginaProgramas()
         self.pagina_arranque = PaginaArranque()
         self.pagina_otimizacoes = PaginaOtimizacoes()
         self.pagina_relatorio = PaginaRelatorio()
 
+        # A ordem tem de acompanhar SECCOES: é o índice que liga botão e página
         for pagina in (
             self.pagina_diagnostico,
+            self.pagina_memoria,
             self.pagina_limpeza,
+            self.pagina_programas,
             self.pagina_arranque,
             self.pagina_otimizacoes,
             self.pagina_relatorio,
@@ -97,7 +93,9 @@ class JanelaPrincipal(QMainWindow):
         # Tudo o que se faz nas outras páginas entra no relatório
         self.pagina_diagnostico.concluido.connect(self.pagina_relatorio.definir_diagnostico)
         self.pagina_diagnostico.concluido.connect(self._atualizar_cartao)
+        self.pagina_memoria.alterou.connect(self.pagina_relatorio.registar_acao)
         self.pagina_limpeza.limpou.connect(self.pagina_relatorio.registar_acao)
+        self.pagina_programas.alterou.connect(self.pagina_relatorio.registar_acao)
         self.pagina_arranque.alterou.connect(self.pagina_relatorio.registar_acao)
         self.pagina_otimizacoes.alterou.connect(self.pagina_relatorio.registar_acao)
 
@@ -230,11 +228,7 @@ def run_gui() -> int:
     aplicacao.setApplicationName(APP_NAME)
     aplicacao.setOrganizationName(BRAND)
 
-    carregar_fontes()
-    base = QFont(theme.FAMILIA_UI, 13)
-    base.setStyleStrategy(QFont.PreferAntialias)
-    aplicacao.setFont(base)
-    aplicacao.setStyleSheet(theme.QSS)
+    theme.aplicar(aplicacao)
 
     janela = JanelaPrincipal()
     janela.show()

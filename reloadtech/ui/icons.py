@@ -74,9 +74,27 @@ def _documento(caminho: QPainterPath) -> None:
     caminho.lineTo(14.5, 16)
 
 
+def _memoria(caminho: QPainterPath) -> None:
+    """Memória: um módulo de RAM com os seus pinos."""
+    caminho.addRoundedRect(QRectF(3.5, 7, 17, 10), 1.6, 1.6)
+    caminho.addRect(QRectF(7, 10, 10, 4))
+    for x in (7.5, 12, 16.5):
+        caminho.moveTo(x, 17)
+        caminho.lineTo(x, 19.5)
+
+
+def _quadricula(caminho: QPainterPath) -> None:
+    """Programas: aplicações arrumadas numa grelha."""
+    for x in (4.0, 13.5):
+        for y in (4.0, 13.5):
+            caminho.addRoundedRect(QRectF(x, y, 6.5, 6.5), 1.6, 1.6)
+
+
 DESENHOS = {
     "diagnostico": _mostrador,
+    "memoria": _memoria,
     "limpeza": _pincel,
+    "programas": _quadricula,
     "arranque": _energia,
     "otimizacoes": _cursores,
     "relatorio": _documento,

@@ -14,10 +14,23 @@ Em servidores funciona inteiramente por linha de comandos — a interface gráfi
 | | |
 |---|---|
 | **Diagnóstico** | Processador, memória, discos (SMART), gráfica, bateria, temperaturas e processos mais pesados. Só lê — não altera nada. |
+| **Memória** | Repartição real da RAM, o que a está a ocupar, e as poucas operações que o sistema suporta de facto — cada uma com o custo escrito à frente. |
 | **Limpeza** | Temporários, caches de navegadores, logs antigos, cache de pacotes, lixo. Analisa primeiro, mostra o que vai apagar, e só depois limpa. |
+| **Programas** | Aplicações instaladas com tamanho e data do último uso, e desinstalação. No macOS vão para o Lixo, para haver como voltar atrás. |
 | **Arranque** | Lista tudo o que arranca com o sistema (registo e pastas no Windows, LaunchAgents no macOS, autostart e systemd no Linux) e permite desativar. Sempre reversível. |
 | **Otimizações** | Ajustes concretos ao sistema e a serviços, cada um com o risco e o benefício declarados. Os que são interruptores revertem-se com um clique. |
 | **Relatório** | Documento em PDF ou HTML com o diagnóstico, as intervenções feitas e as observações do técnico. |
+
+### Sobre «limpar RAM»
+
+Em sistemas modernos, **memória livre é memória desperdiçada**: o sistema operativo usa a RAM
+sobrante como cache de disco, de propósito. A maioria dos *RAM boosters* do mercado apenas empurra
+páginas para o disco, o que faz subir o número e descer o desempenho.
+
+Esta ferramenta não tem botão mágico. Tem o que é real em cada sistema — `purge` no macOS,
+`drop_caches` e reposição da swap no Linux, `EmptyWorkingSet` no Windows — e diz o que cada um
+custa antes de o executares. O que resolve mesmo falta de RAM é ver o que a ocupa e fechá-lo,
+e é isso que a página faz primeiro.
 
 ## O que **não** faz
 
@@ -85,6 +98,12 @@ reloadtech diagnostico --pdf --cliente "Nome do cliente"
 
 reloadtech limpeza                           # analisa, não apaga nada
 reloadtech limpeza --executar --seguros --sim
+
+reloadtech memoria                           # o que ocupa a RAM
+reloadtech memoria --executar purge          # operações de sistema
+
+reloadtech programas --esconder-sistema      # o que ocupa espaço
+reloadtech programas --remover "CapCut"
 
 reloadtech arranque --detalhado
 reloadtech arranque --desativar "systemd::cups.service"

@@ -213,7 +213,9 @@ QCheckBox::indicator {{
     border-radius: 4px; background: {FUNDO};
 }}
 QCheckBox::indicator:hover {{ border-color: rgba(255,255,255,0.4); }}
-QCheckBox::indicator:checked {{ background: {LEITURA}; border-color: {LEITURA}; }}
+QCheckBox::indicator:checked {{
+    background: {LEITURA}; border-color: {LEITURA}; image: url("{{MARCA}}");
+}}
 QCheckBox::indicator:disabled {{ background: rgba(255,255,255,0.03);
                                  border-color: rgba(255,255,255,0.08); }}
 
@@ -229,3 +231,52 @@ QToolTip {{
     border-radius: 6px; padding: 6px 9px;
 }}
 """
+
+
+def _caminho_marca() -> str:
+    """Desenha o visto das caixas de seleção e devolve o caminho do ficheiro.
+
+    O QSS não desenha símbolo nenhum quando se define o fundo do indicador: a
+    caixa marcada ficava um bloco sólido. A marca tem de vir de uma imagem, e
+    esta é gerada em código para acompanhar a paleta.
+    """
+    from PySide6.QtCore import QPointF, Qt  # noqa: PLC0415 - só é preciso na interface
+    from PySide6.QtGui import QColor, QPainter, QPen, QPixmap
+
+    from .. import storage
+
+    destino = storage.data_dir() / "marca-verificacao.png"
+    lado = 32
+    imagem = QPixmap(lado, lado)
+    imagem.fill(Qt.transparent)
+
+    pintor = QPainter(imagem)
+    pintor.setRenderHint(QPainter.Antialiasing)
+    caneta = QPen(QColor(FUNDO))
+    caneta.setWidthF(4.0)
+    caneta.setCapStyle(Qt.RoundCap)
+    caneta.setJoinStyle(Qt.RoundJoin)
+    pintor.setPen(caneta)
+    pintor.drawPolyline([QPointF(8, 16.5), QPointF(13.5, 22), QPointF(24, 10)])
+    pintor.end()
+
+    imagem.save(str(destino))
+    return destino.as_posix()
+
+
+def aplicar(aplicacao) -> None:
+    """Prepara a aparência da aplicação: fontes, fonte base e folha de estilo.
+
+    Ponto único para que a janela, as capturas e os testes vejam exatamente o
+    mesmo — nada pior do que um screenshot que não corresponde ao produto.
+    """
+    from PySide6.QtGui import QFont, QFontDatabase  # noqa: PLC0415
+
+    if PASTA_FONTES.is_dir():
+        for ficheiro in sorted(PASTA_FONTES.glob("*.ttf")):
+            QFontDatabase.addApplicationFont(str(ficheiro))
+
+    base = QFont(FAMILIA_UI, 13)
+    base.setStyleStrategy(QFont.PreferAntialias)
+    aplicacao.setFont(base)
+    aplicacao.setStyleSheet(QSS.replace("{MARCA}", _caminho_marca()))
