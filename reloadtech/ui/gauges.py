@@ -13,10 +13,9 @@ from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from . import theme
 
-MONO = ["JetBrains Mono", "SF Mono", "Menlo", "Cascadia Mono", "Consolas",
-        "DejaVu Sans Mono", "Courier New"]
-UI = ["Inter", "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue",
-      "DejaVu Sans"]
+MONO = [theme.FAMILIA_MONO, "SF Mono", "Menlo", "Cascadia Mono", "Consolas",
+        "DejaVu Sans Mono"]
+UI = [theme.FAMILIA_UI, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "DejaVu Sans"]
 
 
 def fonte(familias: list[str], tamanho: float, peso: QFont.Weight = QFont.Normal,
@@ -61,7 +60,7 @@ class Medidor(QWidget):
 
         # Linha superior: rótulo à esquerda, leitura à direita
         pintor.setFont(fonte(MONO, 7.5, QFont.DemiBold, 1.1))
-        pintor.setPen(QColor(theme.TINTA_SUAVE))
+        pintor.setPen(QColor(theme.TINTA_FRACA))
         pintor.drawText(QRectF(0, 0, largura, 14), Qt.AlignLeft | Qt.AlignVCenter,
                         self._rotulo.upper())
 
@@ -82,7 +81,7 @@ class Medidor(QWidget):
             pintor.drawRoundedRect(QRectF(0, topo, max(preenchido, 3.0), altura), 3, 3)
 
         # Graduação de 10 em 10, mais alta nos quartos
-        caneta = QPen(QColor("#c9cec6"))
+        caneta = QPen(QColor(theme.GRADUACAO))
         caneta.setWidthF(1.0)
         pintor.setPen(caneta)
         for passo in range(0, 11):
@@ -102,7 +101,7 @@ class Medidor(QWidget):
 
         if self._detalhe:
             pintor.setFont(fonte(UI, 8.5))
-            pintor.setPen(QColor(theme.TINTA_SUAVE))
+            pintor.setPen(QColor(theme.TINTA_FRACA))
             pintor.drawText(QRectF(0, topo + altura + 8, largura, 16),
                             Qt.AlignLeft | Qt.AlignVCenter, self._detalhe)
         pintor.end()
@@ -164,12 +163,12 @@ class EscalaSaude(QWidget):
         pintor.setPen(Qt.NoPen)
         for inicio, fim, cor_zona in zonas:
             tinta = QColor(cor_zona)
-            tinta.setAlpha(92)
+            tinta.setAlpha(70)
             pintor.setBrush(tinta)
             x0 = largura * inicio / 100.0
             pintor.drawRect(QRectF(x0, topo, largura * (fim - inicio) / 100.0, altura))
 
-        caneta = QPen(QColor("#c9cec6"))
+        caneta = QPen(QColor(theme.GRADUACAO))
         caneta.setWidthF(1.0)
         pintor.setPen(caneta)
         for passo in range(0, 21):
@@ -181,7 +180,7 @@ class EscalaSaude(QWidget):
         if valor is not None:
             x = min(max(largura * valor / 100.0, 1.0), largura - 1.0)
             pintor.setPen(Qt.NoPen)
-            pintor.setBrush(QColor(255, 255, 255, 235))
+            pintor.setBrush(QColor(theme.FUNDO))
             pintor.drawRect(QRectF(x - 1.5, topo, 3.0, altura))
             pintor.setBrush(cor)
             pintor.drawRect(QRectF(x - 0.75, topo, 1.5, altura))

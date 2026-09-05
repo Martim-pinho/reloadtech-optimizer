@@ -32,8 +32,8 @@ class PaginaRelatorio(QWidget):
         self.acoes: list[str] = []
 
         raiz = QVBoxLayout(self)
-        raiz.setContentsMargins(28, 24, 28, 24)
-        raiz.setSpacing(16)
+        raiz.setContentsMargins(theme.XL, theme.XL, theme.XL, theme.XL)
+        raiz.setSpacing(theme.MD)
 
         raiz.addWidget(titulo_pagina(
             "Relatório para o cliente",
@@ -89,6 +89,7 @@ class PaginaRelatorio(QWidget):
         self.botao_html.setObjectName("secundario")
         self.botao_html.clicked.connect(lambda: self._gerar("html"))
         self.botao_pdf = QPushButton("Gerar PDF")
+        self.botao_pdf.setObjectName("primario")
         self.botao_pdf.clicked.connect(lambda: self._gerar("pdf"))
         botoes.addWidget(self.botao_pasta)
         botoes.addStretch()

@@ -130,19 +130,28 @@ reloadtech/
 
 ## Design
 
-A interface segue duas regras:
+A interface segue três regras:
 
 1. **A cor significa o estado de uma medição.** Verde, âmbar e vermelho aparecem só em leituras e
-   veredictos — os botões são grafite. Num aparelho de diagnóstico, se o botão «Limpar» também fosse
-   colorido, a cor deixaria de querer dizer alguma coisa.
+   veredictos; a ação principal distingue-se por contraste, não por cor. Num aparelho de diagnóstico,
+   se o botão «Limpar» também fosse colorido, a cor deixaria de querer dizer alguma coisa.
 2. **As escalas mostram a régua, não só o número.** Cada medição aparece numa escala graduada com o
-   limiar de atenção visível, para que o valor não pareça arbitrário.
+   limiar de atenção visível, desenhada com `QPainter`, para que o valor não pareça arbitrário.
+3. **A elevação transmite hierarquia.** Quatro níveis de superfície, do fundo da janela ao elemento
+   em foco, e um espaçamento que sai sempre da mesma escala.
+
+Os tipos de letra (Inter e JetBrains Mono, ambos OFL) vêm no repositório, em `reloadtech/ui/fontes/`.
+Sem eles o Qt cai na primeira família instalada — no macOS, Helvetica Neue — e a aplicação ganha
+um ar de software de há vinte anos. Os ícones são traçados em código, sem ficheiros de imagem.
+
+O relatório entregue ao cliente é claro, não escuro: é um documento para ler e imprimir.
 
 ## Requisitos
 
 - Python 3.10 ou superior
 - `psutil` (obrigatório), `reportlab` (PDF), `PySide6` (interface gráfica)
 - Linux: `smartmontools` para o estado SMART dos discos
+- Os tipos de letra estão incluídos; não é preciso instalar nada no sistema
 
 ## Licença
 

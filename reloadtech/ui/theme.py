@@ -1,64 +1,68 @@
-"""Identidade visual: instrumento de bancada em materiais translúcidos.
+"""Identidade visual: instrumento de bancada, registo escuro.
 
-Duas ideias governam tudo:
+Três regras governam tudo:
 
-1. A cor significa o estado de uma medição. Verde, âmbar e vermelho aparecem
-   só em leituras e veredictos — nunca em botões ou decoração. Num aparelho de
-   diagnóstico, se o botão «Limpar» também fosse colorido, a cor deixaria de
-   querer dizer alguma coisa.
-2. O material transmite hierarquia. A barra lateral é o material pesado que
-   separa regiões estruturais; os painéis são o material leve onde o trabalho
-   acontece. Nunca se empilha material leve sobre material leve.
-
-Nota técnica sobre o vidro: o Qt não acede ao desfoque do ambiente de trabalho
-sem código nativo. Como o fundo da janela é um gradiente de baixa frequência
-desenhado por nós, uma camada branca translúcida por cima é opticamente
-equivalente a desfocá-lo — e custa uma fração do desempenho.
+1. **A cor significa o estado de uma medição.** Verde, âmbar e vermelho
+   aparecem só em leituras e veredictos. Os botões não têm cor própria. Num
+   aparelho de diagnóstico, se o botão «Limpar» também fosse colorido, a cor
+   deixaria de querer dizer alguma coisa.
+2. **A elevação transmite hierarquia.** Quatro níveis de superfície, do fundo
+   da janela ao elemento em foco. Nunca se empilham dois níveis iguais.
+3. **O espaçamento segue uma escala.** Nada de 13px porque «ficava bem»: cada
+   medida sai de ESCALA, o que dá ritmo ao conjunto sem ninguém reparar porquê.
 """
+from pathlib import Path
 
-# --- Fundo da janela: gradiente suave, não um cinzento chapado --------------
-FUNDO_TOPO = "#eff2f7"
-FUNDO_BASE = "#dde3ea"
-BRILHO = "#ffffff"          # foco de luz difusa no canto superior esquerdo
+# --- Escala de espaçamento ---------------------------------------------------
+XS, SM, MD, LG, XL, XXL = 4, 8, 14, 20, 28, 40
 
-# --- Materiais ---------------------------------------------------------------
-VIDRO = "rgba(255, 255, 255, 0.72)"        # painel leve
-VIDRO_FORTE = "rgba(255, 255, 255, 0.86)"  # campos e listas sobre o painel
-ARESTA_LUZ = "rgba(255, 255, 255, 0.9)"    # a luz a bater no rebordo superior
-ARESTA = "rgba(17, 24, 33, 0.09)"
-SOMBRA = (0, 0, 0, 28)
+# --- Superfícies: quatro níveis de elevação ---------------------------------
+FUNDO = "#0d0f12"            # 0 — o poço da janela
+CHROME = "#131619"           # 1 — barra lateral e cabeçalho
+SUPERFICIE = "#191d21"       # 2 — painéis
+ELEVADA = "#20252a"          # 3 — listas, campos e elementos em foco
+REALCE = "#272d33"           # hover
 
-GRAFITE = "#20252b"          # material pesado: barra lateral e ações
-GRAFITE_CLARO = "#2c333b"
-GRAFITE_TOPO = "#31383f"
-PAINEL = "#ffffff"
-RÉGUA = "rgba(17, 24, 33, 0.10)"
-RÉGUA_SOLIDA = "#dde1e6"
-TRILHO = "#dfe4e9"
+ARESTA = "rgba(255, 255, 255, 0.07)"
+ARESTA_FORTE = "rgba(255, 255, 255, 0.12)"
+ARESTA_LUZ = "rgba(255, 255, 255, 0.05)"   # luz a bater no rebordo superior
+
+# Valores sólidos para o desenho com QPainter, que não interpreta rgba()
+TRILHO = "#242a30"
+GRADUACAO = "#39414a"
+SOMBRA_COR = (0, 0, 0, 90)
 
 # --- Tinta -------------------------------------------------------------------
-TINTA = "#12161b"
-TINTA_SUAVE = "#5f6873"
-TINTA_RAIL = "#98a2ad"
+TINTA = "#e9ecef"
+TINTA_SUAVE = "#98a1ab"
+TINTA_FRACA = "#6a737d"
 
 # --- Estado de medição: o único sítio onde há cor ---------------------------
-NOMINAL = "#1d7a4d"
-CAUTELA = "#b06800"
-FALHA = "#a5281f"
-LEITURA = "#0b6a72"
+# Tons calibrados para fundo escuro — os do tema claro ficavam ilegíveis aqui.
+NOMINAL = "#3ecf8e"
+CAUTELA = "#e8a33d"
+FALHA = "#f26d63"
+LEITURA = "#5ac8d8"          # foco e seleção
+
+NOMINAL_FUNDO = "rgba(62, 207, 142, 0.14)"
+CAUTELA_FUNDO = "rgba(232, 163, 61, 0.14)"
+FALHA_FUNDO = "rgba(242, 109, 99, 0.14)"
 
 NIVEL_CORES = {"critico": FALHA, "alto": FALHA, "medio": CAUTELA, "ok": NOMINAL}
 
 LIMIAR_ATENCAO = 75
 LIMIAR_CRITICO = 90
 
-FONTE_UI = '"Inter", "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", "DejaVu Sans", sans-serif'
-FONTE_MONO = '"JetBrains Mono", "SF Mono", "Menlo", "Cascadia Mono", "Consolas", "DejaVu Sans Mono", monospace'
+# --- Tipografia --------------------------------------------------------------
+# Incluídas no repositório (OFL): a aplicação vê-se igual no Mac, no Windows e
+# no servidor. Sem isto, o Qt caía em Helvetica Neue e parecia software de 1998.
+PASTA_FONTES = Path(__file__).parent / "fontes"
+FAMILIA_UI = "Inter"
+FAMILIA_MONO = "JetBrains Mono"
+FONTE_UI = f'"{FAMILIA_UI}", "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", sans-serif'
+FONTE_MONO = f'"{FAMILIA_MONO}", "SF Mono", Menlo, Consolas, monospace'
 
-# Movimento: curto, sem ressalto por omissão. O ressalto guarda-se para gestos
-# que trazem inércia — e esta aplicação não tem nenhum.
-DURACAO_PAGINA = 260
-DURACAO_ENTRADA = 300
+DURACAO_PAGINA = 240
 
 
 def cor_medicao(valor: float, invertido: bool = False) -> str:
@@ -84,136 +88,144 @@ QWidget {{
     font-size: 13px;
 }}
 QLabel {{ background: transparent; }}
+QMainWindow, QDialog {{ background: {FUNDO}; }}
+#fundoJanela {{ background: {FUNDO}; }}
 
-/* --- Barra lateral: o material pesado ------------------------------------ */
-#lateral {{
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #262c33, stop:1 #1a1e24);
-    border-right: 1px solid rgba(0, 0, 0, 0.35);
-}}
-#marca {{ color: #ffffff; font-size: 16.5px; font-weight: 700; letter-spacing: -.02em; }}
+/* --- Barra lateral -------------------------------------------------------- */
+#lateral {{ background: {CHROME}; border-right: 1px solid {ARESTA}; }}
+#marca {{ color: {TINTA}; font-size: 15px; font-weight: 600; letter-spacing: -.01em; }}
 #modelo {{
-    color: {TINTA_RAIL}; font-family: {FONTE_MONO}; font-size: 9.5px;
-    letter-spacing: .18em; padding: 0 20px 22px 20px;
+    color: {TINTA_FRACA}; font-family: {FONTE_MONO}; font-size: 9px;
+    font-weight: 500; letter-spacing: .2em;
 }}
 QPushButton#nav {{
-    background: transparent; color: #b3bcc6; border: none; text-align: left;
-    padding: 10px 20px; font-size: 13px; margin: 1px 10px; border-radius: 7px;
+    background: transparent; color: {TINTA_SUAVE}; border: none; text-align: left;
+    padding: {SM}px 11px; font-size: 13px; font-weight: 500;
+    margin: 1px {MD}px; border-radius: 7px;
 }}
-QPushButton#nav:hover {{ background: rgba(255, 255, 255, 0.06); color: #ffffff; }}
+QPushButton#nav:hover {{ background: rgba(255, 255, 255, 0.05); color: {TINTA}; }}
 QPushButton#nav:checked {{
-    background: rgba(255, 255, 255, 0.11); color: #ffffff; font-weight: 600;
+    background: {ELEVADA}; color: {TINTA}; font-weight: 600;
 }}
-/* Sem borda: uma regra com `border` faz o Qt desenhar o fundo da paleta por
-   baixo, e a etiqueta ficava um retângulo claro sobre a barra escura. A linha
-   de separação é um QFrame à parte. */
-#etiquetaServico {{
-    background: transparent; color: {TINTA_RAIL};
-    font-family: {FONTE_MONO}; font-size: 10px;
-    padding: 14px 20px 18px 20px; line-height: 155%;
-}}
-#separadorLateral {{ background: rgba(255, 255, 255, 0.08); border: none; max-height: 1px; }}
+#separadorLateral {{ background: {ARESTA}; border: none; max-height: 1px; }}
 
-/* --- Tipografia: tracking em função do tamanho -------------------------- */
-#titulo {{ font-size: 22px; font-weight: 700; letter-spacing: -.022em; }}
-#legenda {{ color: {TINTA_SUAVE}; font-size: 12.5px; }}
+/* Cartão da máquina em intervenção */
+QFrame#cartaoMaquina {{
+    background: {SUPERFICIE}; border: 1px solid {ARESTA}; border-radius: 9px;
+}}
+#maquinaRotulo {{
+    color: {TINTA_FRACA}; font-family: {FONTE_MONO}; font-size: 8.5px;
+    font-weight: 600; letter-spacing: .18em;
+}}
+#maquinaNome {{ color: {TINTA}; font-size: 12.5px; font-weight: 600; }}
+#maquinaDetalhe {{ color: {TINTA_FRACA}; font-family: {FONTE_MONO}; font-size: 10px; }}
+
+/* --- Tipografia ---------------------------------------------------------- */
+#titulo {{ font-size: 23px; font-weight: 600; letter-spacing: -.024em; }}
+#legenda {{ color: {TINTA_SUAVE}; font-size: 13px; }}
 #rotuloSeccao {{
-    color: {TINTA_SUAVE}; font-family: {FONTE_MONO}; font-size: 9.5px;
-    letter-spacing: .14em; font-weight: 600;
+    color: {TINTA_FRACA}; font-family: {FONTE_MONO}; font-size: 9px;
+    letter-spacing: .16em; font-weight: 600;
 }}
-#leitura {{ font-family: {FONTE_MONO}; font-size: 11.5px; color: {TINTA_SUAVE}; }}
+#leitura {{ font-family: {FONTE_MONO}; font-size: 11px; color: {TINTA_FRACA}; }}
 
-/* --- Painéis de vidro ---------------------------------------------------- */
+/* --- Painéis ------------------------------------------------------------- */
 QFrame#painel {{
-    background: {VIDRO};
+    background: {SUPERFICIE};
     border: 1px solid {ARESTA};
-    border-top: 1px solid {ARESTA_LUZ};
-    border-radius: 14px;
+    border-top: 1px solid {ARESTA_FORTE};
+    border-radius: 12px;
 }}
 
-/* --- Ações: grafite. A cor pertence às medições. ------------------------- */
+/* --- Ações --------------------------------------------------------------- */
 QPushButton {{
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 {GRAFITE_TOPO}, stop:1 {GRAFITE});
-    color: #ffffff; border: 1px solid rgba(0, 0, 0, 0.4);
-    border-radius: 8px; padding: 8px 17px; font-weight: 600; font-size: 12.5px;
+    background: {ELEVADA}; color: {TINTA};
+    border: 1px solid {ARESTA_FORTE};
+    border-radius: 8px; padding: {SM}px 16px; font-weight: 600; font-size: 12.5px;
 }}
-QPushButton:hover {{
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #3a424b, stop:1 {GRAFITE_CLARO});
+QPushButton:hover {{ background: {REALCE}; border-color: rgba(255,255,255,0.18); }}
+QPushButton:pressed {{ background: {SUPERFICIE}; }}
+QPushButton:disabled {{ background: rgba(255,255,255,0.03); color: {TINTA_FRACA};
+                        border-color: {ARESTA_LUZ}; }}
+QPushButton#secundario {{ background: {ELEVADA}; }}
+
+/* A ação principal de cada página distingue-se pelo contraste, não pela cor */
+/* A borda tem de ter cor sólida: com `transparent`, o macOS descarta a folha
+   de estilo e volta a desenhar o botão à maneira nativa, sem o fundo. */
+QPushButton#primario {{
+    background: {TINTA}; color: {FUNDO}; border: 1px solid {TINTA}; font-weight: 600;
 }}
-/* Resposta no instante do clique, não à espera do fim */
-QPushButton:pressed {{ background: {GRAFITE}; padding-top: 9px; padding-bottom: 7px; }}
-QPushButton:disabled {{
-    background: rgba(120, 130, 142, 0.28); border-color: transparent; color: rgba(255,255,255,0.65);
-}}
-QPushButton#secundario {{
-    background: {VIDRO_FORTE}; color: {TINTA}; border: 1px solid {ARESTA};
-}}
-QPushButton#secundario:hover {{ background: #ffffff; }}
-QPushButton#secundario:pressed {{ background: #eef1f4; }}
-QPushButton#secundario:disabled {{ background: rgba(255,255,255,0.5); color: #a9b1ba; }}
+QPushButton#primario:hover {{ background: #ffffff; border-color: #ffffff; }}
+QPushButton#primario:pressed {{ background: #c9ced4; border-color: #c9ced4; }}
+QPushButton#primario:disabled {{ background: rgba(255,255,255,0.09); color: {TINTA_FRACA}; }}
 /* Única exceção à regra da cor: apagar é irreversível e tem de o parecer. */
 QPushButton#perigo {{
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #b83229, stop:1 {FALHA});
-    border-color: rgba(0, 0, 0, 0.3);
+    background: {FALHA_FUNDO}; color: {FALHA}; border: 1px solid rgba(242, 109, 99, 0.35);
 }}
-QPushButton#perigo:hover {{
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #c73a30, stop:1 #ad2b21);
-}}
+QPushButton#perigo:hover {{ background: rgba(242, 109, 99, 0.22); }}
 
 /* --- Listas -------------------------------------------------------------- */
 QTreeWidget, QTableWidget, QListWidget, QTextEdit, QPlainTextEdit {{
-    background: {VIDRO_FORTE}; border: 1px solid {ARESTA}; border-radius: 9px;
-    alternate-background-color: rgba(255, 255, 255, 0.45);
-    font-size: 12.5px;
+    background: {ELEVADA}; border: 1px solid {ARESTA}; border-radius: 9px;
+    alternate-background-color: transparent;
+    font-size: 12.5px; outline: none;
+    selection-background-color: rgba(90, 200, 216, 0.16);
 }}
-QTreeWidget::item, QTableWidget::item {{ padding: 7px 4px; }}
+QTreeWidget::item, QTableWidget::item, QListWidget::item {{
+    padding: 9px 6px; border-bottom: 1px solid rgba(255,255,255,0.04);
+}}
+QTreeWidget::item:hover {{ background: rgba(255,255,255,0.04); }}
 QTreeWidget::item:selected, QListWidget::item:selected {{
-    background: rgba(11, 106, 114, 0.12); color: {TINTA};
+    background: rgba(90, 200, 216, 0.14); color: {TINTA};
 }}
 QHeaderView::section {{
-    background: transparent; color: {TINTA_SUAVE}; border: none;
-    border-bottom: 1px solid {RÉGUA}; padding: 8px 6px;
-    font-family: {FONTE_MONO}; font-size: 9.5px; letter-spacing: .12em; font-weight: 600;
+    background: transparent; color: {TINTA_FRACA}; border: none;
+    border-bottom: 1px solid {ARESTA_FORTE}; padding: 10px 6px;
+    font-family: {FONTE_MONO}; font-size: 9px; letter-spacing: .14em; font-weight: 600;
 }}
+QTreeWidget::branch {{ background: transparent; }}
 
 /* --- Campos -------------------------------------------------------------- */
 QLineEdit, QTextEdit {{
-    background: {VIDRO_FORTE}; border: 1px solid {ARESTA}; border-radius: 8px; padding: 8px 10px;
+    background: {FUNDO}; border: 1px solid {ARESTA}; border-radius: 8px;
+    padding: 9px 11px; color: {TINTA}; selection-background-color: rgba(90,200,216,0.3);
 }}
-QLineEdit:focus, QTextEdit:focus {{ border: 1px solid {LEITURA}; background: #ffffff; }}
+QLineEdit:focus, QTextEdit:focus {{ border: 1px solid {LEITURA}; }}
+QLineEdit::placeholder {{ color: {TINTA_FRACA}; }}
 
 QProgressBar {{
-    background: rgba(17, 24, 33, 0.08); border: none; border-radius: 2px;
-    height: 4px; text-align: center;
+    background: rgba(255,255,255,0.07); border: none; border-radius: 2px;
+    height: 3px; text-align: center;
 }}
-QProgressBar::chunk {{ background: {GRAFITE}; border-radius: 2px; }}
+QProgressBar::chunk {{ background: {LEITURA}; border-radius: 2px; }}
 
 QScrollArea {{ border: none; background: transparent; }}
-QScrollArea > QWidget > QWidget {{ background: transparent; }}
 QScrollBar:vertical {{ background: transparent; width: 11px; margin: 3px; }}
-QScrollBar::handle:vertical {{ background: rgba(17,24,33,0.22); border-radius: 5px; min-height: 32px; }}
-QScrollBar::handle:vertical:hover {{ background: rgba(17,24,33,0.34); }}
+QScrollBar::handle:vertical {{ background: rgba(255,255,255,0.14); border-radius: 5px;
+                               min-height: 34px; }}
+QScrollBar::handle:vertical:hover {{ background: rgba(255,255,255,0.24); }}
 QScrollBar::add-line, QScrollBar::sub-line {{ height: 0; width: 0; }}
 QScrollBar::add-page, QScrollBar::sub-page {{ background: transparent; }}
 
-QCheckBox {{ spacing: 8px; }}
+QCheckBox {{ spacing: {SM}px; color: {TINTA}; }}
 QCheckBox::indicator {{
-    width: 16px; height: 16px; border: 1.5px solid rgba(17,24,33,0.28);
-    border-radius: 4px; background: rgba(255,255,255,0.9);
+    width: 16px; height: 16px; border: 1.5px solid rgba(255,255,255,0.22);
+    border-radius: 4px; background: {FUNDO};
 }}
-QCheckBox::indicator:checked {{ background: {GRAFITE}; border-color: {GRAFITE}; }}
-QCheckBox::indicator:disabled {{ background: rgba(255,255,255,0.5); border-color: rgba(17,24,33,0.14); }}
+QCheckBox::indicator:hover {{ border-color: rgba(255,255,255,0.4); }}
+QCheckBox::indicator:checked {{ background: {LEITURA}; border-color: {LEITURA}; }}
+QCheckBox::indicator:disabled {{ background: rgba(255,255,255,0.03);
+                                 border-color: rgba(255,255,255,0.08); }}
 
 #avisoAdmin {{
-    background: rgba(176, 104, 0, 0.09); border: 1px solid rgba(176, 104, 0, 0.22);
-    border-radius: 9px; padding: 11px 14px; color: #7a4900; font-size: 12.5px;
+    background: {CAUTELA_FUNDO}; border: 1px solid rgba(232, 163, 61, 0.28);
+    border-radius: 9px; padding: 11px 14px; color: {CAUTELA}; font-size: 12.5px;
 }}
 
-QMessageBox {{ background: #f1f4f7; }}
+QMessageBox {{ background: {SUPERFICIE}; }}
+QMessageBox QLabel {{ color: {TINTA}; }}
 QToolTip {{
-    background: {GRAFITE}; color: #ffffff; border: none;
+    background: {ELEVADA}; color: {TINTA}; border: 1px solid {ARESTA_FORTE};
     border-radius: 6px; padding: 6px 9px;
 }}
 """

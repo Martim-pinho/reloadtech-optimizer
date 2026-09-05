@@ -31,8 +31,8 @@ class PaginaLimpeza(QWidget):
         self._tarefa: Tarefa | None = None
 
         raiz = QVBoxLayout(self)
-        raiz.setContentsMargins(28, 24, 28, 24)
-        raiz.setSpacing(16)
+        raiz.setContentsMargins(theme.XL, theme.XL, theme.XL, theme.XL)
+        raiz.setSpacing(theme.MD)
 
         topo = QHBoxLayout()
         topo.addWidget(titulo_pagina(
@@ -41,6 +41,7 @@ class PaginaLimpeza(QWidget):
             "Documentos, transferências e definições nunca são tocados.",
         ), 1)
         self.botao_analisar = QPushButton("Analisar")
+        self.botao_analisar.setObjectName("primario")
         self.botao_analisar.clicked.connect(self.analisar)
         topo.addWidget(self.botao_analisar, 0, Qt.AlignTop)
         raiz.addLayout(topo)

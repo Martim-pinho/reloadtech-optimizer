@@ -33,8 +33,8 @@ class PaginaDiagnostico(QWidget):
         self._medidores_volume: list[Medidor] = []
 
         raiz = QVBoxLayout(self)
-        raiz.setContentsMargins(26, 22, 26, 22)
-        raiz.setSpacing(14)
+        raiz.setContentsMargins(theme.XL, theme.XL, theme.XL, theme.XL)
+        raiz.setSpacing(theme.MD)
 
         topo = QHBoxLayout()
         topo.addWidget(titulo_pagina(
@@ -42,6 +42,7 @@ class PaginaDiagnostico(QWidget):
             "Leitura do estado da máquina. Esta análise não altera nada no sistema.",
         ), 1)
         self.botao = QPushButton("Analisar sistema")
+        self.botao.setObjectName("primario")
         self.botao.clicked.connect(self.analisar)
         topo.addWidget(self.botao, 0, Qt.AlignTop)
         raiz.addLayout(topo)

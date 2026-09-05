@@ -150,8 +150,8 @@ class PaginaOtimizacoes(QWidget):
     def __init__(self) -> None:
         super().__init__()
         raiz = QVBoxLayout(self)
-        raiz.setContentsMargins(28, 24, 28, 24)
-        raiz.setSpacing(16)
+        raiz.setContentsMargins(theme.XL, theme.XL, theme.XL, theme.XL)
+        raiz.setSpacing(theme.MD)
 
         raiz.addWidget(titulo_pagina(
             "Otimizações e serviços",

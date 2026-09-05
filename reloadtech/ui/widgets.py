@@ -16,14 +16,13 @@ from PySide6.QtWidgets import (
 from . import theme
 
 
-def aplicar_sombra(alvo: QWidget, desfoque: int = 30, deslocamento: int = 7,
-                   opacidade: int = 26) -> None:
-    """Sombra difusa: separa o material do fundo sem o anunciar."""
+def aplicar_sombra(alvo: QWidget, desfoque: int = 26, deslocamento: int = 6) -> None:
+    """Sombra difusa: separa a superfície do fundo sem a anunciar."""
     sombra = QGraphicsDropShadowEffect(alvo)
     sombra.setBlurRadius(desfoque)
     sombra.setXOffset(0)
     sombra.setYOffset(deslocamento)
-    sombra.setColor(QColor(10, 16, 24, opacidade))
+    sombra.setColor(QColor(*theme.SOMBRA_COR))
     alvo.setGraphicsEffect(sombra)
 
 
@@ -35,8 +34,8 @@ class Painel(QFrame):
         self.setObjectName("painel")
         aplicar_sombra(self)
         self.corpo = QVBoxLayout(self)
-        self.corpo.setContentsMargins(20, 17, 20, 18)
-        self.corpo.setSpacing(10)
+        self.corpo.setContentsMargins(theme.LG, theme.MD + 2, theme.LG, theme.LG)
+        self.corpo.setSpacing(theme.SM + 2)
         if titulo:
             etiqueta = QLabel(titulo.upper())
             etiqueta.setObjectName("rotuloSeccao")
@@ -55,14 +54,14 @@ class Conclusao(QFrame):
         # apanhava a mesma moldura e a conclusão ficava com caixas repetidas.
         self.setObjectName("conclusao")
         self.setStyleSheet(
-            f"QFrame#conclusao {{ background: rgba(255, 255, 255, 0.62);"
+            f"QFrame#conclusao {{ background: {theme.ELEVADA};"
             f" border: 1px solid {theme.ARESTA}; border-left: 3px solid {cor};"
-            " border-radius: 10px; }"
+            " border-radius: 9px; }"
             " QFrame#conclusao QLabel { border: none; background: transparent; }"
         )
         esquema = QVBoxLayout(self)
-        esquema.setContentsMargins(16, 12, 16, 13)
-        esquema.setSpacing(4)
+        esquema.setContentsMargins(theme.MD + 2, theme.MD - 2, theme.MD + 2, theme.MD - 1)
+        esquema.setSpacing(theme.XS)
 
         cabecalho = QLabel(
             f'<span style="color:{cor};font-family:{theme.FONTE_MONO};font-size:10px;'
@@ -76,7 +75,7 @@ class Conclusao(QFrame):
         detalhe.setStyleSheet(f"color: {theme.TINTA_SUAVE};")
         acao = QLabel(item["acao"])
         acao.setWordWrap(True)
-        acao.setStyleSheet(f"color: {theme.TINTA}; padding-top: 5px;")
+        acao.setStyleSheet(f"color: {theme.TINTA}; padding-top: {theme.XS}px;")
 
         esquema.addWidget(cabecalho)
         esquema.addWidget(detalhe)
@@ -106,7 +105,7 @@ def linha_dados(rotulo: str, valor: str, mono: bool = False) -> QWidget:
     esquema = QHBoxLayout(caixa)
     esquema.setContentsMargins(0, 2, 0, 2)
     esq = QLabel(rotulo)
-    esq.setStyleSheet(f"color: {theme.TINTA_SUAVE}; font-size: 12.5px;")
+    esq.setStyleSheet(f"color: {theme.TINTA_FRACA}; font-size: 12.5px;")
     esq.setMinimumWidth(180)
     esq.setAlignment(Qt.AlignTop | Qt.AlignLeft)
     dir_ = QLabel(str(valor))
@@ -123,5 +122,5 @@ def linha_dados(rotulo: str, valor: str, mono: bool = False) -> QWidget:
 def separador() -> QFrame:
     linha = QFrame()
     linha.setFrameShape(QFrame.HLine)
-    linha.setStyleSheet(f"background: {theme.RÉGUA_SOLIDA}; max-height: 1px; border: none;")
+    linha.setStyleSheet("background: rgba(255,255,255,0.07); max-height: 1px; border: none;")
     return linha
