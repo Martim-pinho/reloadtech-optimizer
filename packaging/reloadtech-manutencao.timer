@@ -1,0 +1,11 @@
+[Unit]
+Description=Corre a manutenção do ReloadTech Optimizer todas as semanas
+
+[Timer]
+OnCalendar=Sun 04:00
+# Se a máquina estiver desligada à hora marcada, corre no arranque seguinte.
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

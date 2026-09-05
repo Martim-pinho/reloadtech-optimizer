@@ -1,0 +1,14 @@
+[Unit]
+Description=ReloadTech Optimizer — manutenção automática
+Documentation=man:reloadtech(1)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/reloadtech manutencao --destino /var/log/reloadtech/relatorio.html
+# A rotina só faz limpeza de risco baixo; não desativa serviços sozinha.
+Nice=10
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target
