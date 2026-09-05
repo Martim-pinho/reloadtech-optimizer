@@ -37,6 +37,7 @@ from .pages.memoria import PaginaMemoria
 from .pages.otimizacoes import PaginaOtimizacoes
 from .pages.programas import PaginaProgramas
 from .pages.relatorio import PaginaRelatorio
+from .workers import esperar_todas
 
 SECCOES = [
     ("Diagnóstico", "diagnostico"),
@@ -133,6 +134,11 @@ class JanelaPrincipal(QMainWindow):
         self._animacao.setEndValue(1.0)
         self._animacao.setEasingCurve(QEasingCurve.OutCubic)
         self._animacao.start()
+
+    def closeEvent(self, evento) -> None:  # noqa: N802 - assinatura do Qt
+        """Deixa as análises em curso terminar antes de fechar."""
+        esperar_todas()
+        super().closeEvent(evento)
 
     # --- Barra lateral -------------------------------------------------------
 
